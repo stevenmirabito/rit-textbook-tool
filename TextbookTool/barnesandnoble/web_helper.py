@@ -10,12 +10,12 @@ Licensed under the Apache License v2.0
 http://www.apache.org/licenses/LICENSE-2.0
 """
 
+import json
 
-import barnesandnoble.model
-import barnesandnoble.utilities.progressbar
 from lxml import html
 import requests
-import json
+
+import TextbookTool.barnesandnoble.utilities.progressbar
 
 
 class WebHelper:
@@ -47,7 +47,7 @@ class WebHelper:
         # Add each department returned to the list
         departments = []
         for item in json.loads(response.text):
-            departments.append(barnesandnoble.model.department.Department(item['categoryId'], item['title']))
+            departments.append(TextbookTool.barnesandnoble.model.department.Department(item['categoryId'], item['title']))
 
         return departments
 
@@ -71,7 +71,7 @@ class WebHelper:
         # Add each course returned to the department's list of courses
         courses = []
         for item in json.loads(response.text):
-            courses.append(barnesandnoble.model.course.Course(item['categoryId'], item['title']))
+            courses.append(TextbookTool.barnesandnoble.model.course.Course(item['categoryId'], item['title']))
 
         return courses
 
@@ -97,7 +97,7 @@ class WebHelper:
         # Add each section returned to a list
         sections = []
         for item in json.loads(response.text):
-            sections.append(barnesandnoble.model.section.Section(item['categoryId'], item['categoryName']))
+            sections.append(TextbookTool.barnesandnoble.model.section.Section(item['categoryId'], item['categoryName']))
 
         return sections
 
@@ -144,7 +144,7 @@ class WebHelper:
         for book_index in range(0, len(isbn)):
             book_required = True if required[book_index] == 'REQUIRED' else False
             textbooks.append(
-                barnesandnoble.model.textbook.Textbook(isbn[book_index], title[book_index], author[book_index],
+                TextbookTool.barnesandnoble.model.textbook.Textbook(isbn[book_index], title[book_index], author[book_index],
                                                        edition[book_index],
                                                        publisher[book_index], book_required))
 
@@ -168,7 +168,7 @@ class WebHelper:
             'fill': '#',
             'format': '%(current)s/%(end)s [%(fill)s%(blank)s] %(progress)s%%'
         }
-        progress = barnesandnoble.utilities.progressbar.ProgressBar(**progress_params)
+        progress = TextbookTool.barnesandnoble.utilities.progressbar.ProgressBar(**progress_params)
         print("Downloading courses for each department... " + str(progress), end='')
 
         num_courses = 0
@@ -187,7 +187,7 @@ class WebHelper:
             'fill': '#',
             'format': '%(current)s/%(end)s [%(fill)s%(blank)s] %(progress)s%%'
         }
-        progress = barnesandnoble.utilities.progressbar.ProgressBar(**progress_params)
+        progress = TextbookTool.barnesandnoble.utilities.progressbar.ProgressBar(**progress_params)
         print("Downloading sections for each course... " + str(progress), end='')
 
         num_sections = 0
@@ -207,7 +207,7 @@ class WebHelper:
             'fill': '#',
             'format': '%(current)s/%(end)s [%(fill)s%(blank)s] %(progress)s%%'
         }
-        progress = barnesandnoble.utilities.progressbar.ProgressBar(**progress_params)
+        progress = TextbookTool.barnesandnoble.utilities.progressbar.ProgressBar(**progress_params)
         print("Downloading textbooks for each section... " + str(progress), end='')
 
         for department in departments:

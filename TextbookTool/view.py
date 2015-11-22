@@ -10,10 +10,9 @@ Licensed under the Apache License v2.0
 http://www.apache.org/licenses/LICENSE-2.0
 """
 
-
-import barnesandnoble.data_helper
 from pprint import pprint
 
+import TextbookTool.barnesandnoble.data_helper
 
 if __name__ == "__main__":
     # Display the welcome banner
@@ -23,6 +22,6 @@ if __name__ == "__main__":
     # Prompt the user for a filename
     filename = str(input("Data file name: "))
 
-    data_helper = barnesandnoble.data_helper.DataHelper(filename)
+    data_helper = TextbookTool.barnesandnoble.data_helper.DataHelper(filename)
     data_helper.load()
     pprint(data_helper.data)

@@ -19,6 +19,7 @@ class Textbook:
         self.edition = edition
         self.publisher = publisher
         self.required = required
+        self.buyback_price = 0
 
     def __repr__(self):
         return str(vars(self))

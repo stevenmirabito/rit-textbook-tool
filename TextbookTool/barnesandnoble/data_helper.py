@@ -10,10 +10,11 @@ Licensed under the Apache License v2.0
 http://www.apache.org/licenses/LICENSE-2.0
 """
 
-
-from barnesandnoble.model import course, department, section, textbook
 import os
 import pickle
+
+from TextbookTool.barnesandnoble.model import course, department, section
+from TextbookTool.barnesandnoble.model import textbook
 
 
 class DataHelper:

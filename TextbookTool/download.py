@@ -11,8 +11,8 @@ http://www.apache.org/licenses/LICENSE-2.0
 """
 
 
-import barnesandnoble.data_helper
-import barnesandnoble.web_helper
+import TextbookTool.barnesandnoble.data_helper
+import TextbookTool.barnesandnoble.web_helper
 
 
 if __name__ == "__main__":
@@ -27,12 +27,12 @@ if __name__ == "__main__":
     term_id = int(input("Term ID to download: "))  # Fall 2015 Term ID => 66316366
 
     # Run the downloader
-    web_helper = barnesandnoble.web_helper.WebHelper(term_id)
+    web_helper = TextbookTool.barnesandnoble.web_helper.WebHelper(term_id)
     data = web_helper.get_tree()
 
     # Output the results to the specified file
     print("Saving...", end='')
-    data_helper = barnesandnoble.data_helper.DataHelper(filename)
+    data_helper = TextbookTool.barnesandnoble.data_helper.DataHelper(filename)
     data_helper.data = data
     data_helper.save()
     print("\rSaving... Done!")

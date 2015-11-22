@@ -18,7 +18,6 @@ from pprint import pprint
 if __name__ == "__main__":
     # Display the welcome banner
     print("RIT Textbook Tool Data Viewer")
-    print("Copyright (C) 2015 Steven Mirabito. All rights reserved.")
     print("-----------------------------------------------------------", end='\n\n')
 
     # Prompt the user for a filename

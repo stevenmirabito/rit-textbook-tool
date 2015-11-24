@@ -1,5 +1,5 @@
 """
-web_helper.py
+downloader.py
 ================
 Provides functions for downloading data from Barnes & Noble.
 
@@ -11,14 +11,12 @@ http://www.apache.org/licenses/LICENSE-2.0
 """
 
 import json
-
-from lxml import html
+import lxml.html
 import requests
+import TextbookTool.db.schema
 
-import TextbookTool.barnesandnoble.utilities.progressbar
 
-
-class WebHelper:
+class Downloader:
     def __init__(self, term_id):
         # B&N variables to use for each request
         self.campus_id = 31093371
@@ -47,7 +45,7 @@ class WebHelper:
         # Add each department returned to the list
         departments = []
         for item in json.loads(response.text):
-            departments.append(TextbookTool.barnesandnoble.model.department.Department(item['categoryId'], item['title']))
+            departments.append(TextbookTool.db.schema.Department(id=item['categoryId'], name=item['title']))
 
         return departments
 
@@ -71,7 +69,8 @@ class WebHelper:
         # Add each course returned to the department's list of courses
         courses = []
         for item in json.loads(response.text):
-            courses.append(TextbookTool.barnesandnoble.model.course.Course(item['categoryId'], item['title']))
+            courses.append(
+                TextbookTool.db.schema.Course(id=item['categoryId'], name=item['title'], department_id=department_id))
 
         return courses
 
@@ -97,7 +96,8 @@ class WebHelper:
         # Add each section returned to a list
         sections = []
         for item in json.loads(response.text):
-            sections.append(TextbookTool.barnesandnoble.model.section.Section(item['categoryId'], item['categoryName']))
+            sections.append(
+                TextbookTool.db.schema.Section(id=item['categoryId'], number=item['categoryName'], course_id=course_id))
 
         return sections
 
@@ -121,7 +121,7 @@ class WebHelper:
                                 params=payload, headers=self.headers)
 
         # Parse the HTML into a tree
-        tree = html.fromstring(response.content)
+        tree = lxml.html.fromstring(response.content)
 
         # Scrape content from the page
         isbn = self._clean_xpath_list(
@@ -144,82 +144,16 @@ class WebHelper:
         for book_index in range(0, len(isbn)):
             book_required = True if required[book_index] == 'REQUIRED' else False
             textbooks.append(
-                TextbookTool.barnesandnoble.model.textbook.Textbook(isbn[book_index], title[book_index], author[book_index],
-                                                       edition[book_index],
-                                                       publisher[book_index], book_required))
+                TextbookTool.db.schema.Textbook(isbn=isbn[book_index],
+                                                title=title[book_index],
+                                                author=author[book_index],
+                                                edition=edition[book_index],
+                                                publisher=publisher[book_index],
+                                                required=book_required,
+                                                section_id=section_id))
 
         # Return the list
         return textbooks
-
-    def get_tree(self):
-        """
-        Builds a tree of all of the data returned by this module:
-        Departments -> Courses -> Sections -> Textbooks
-        :return: Tree as described above
-        """
-        print("Downloading departments...", end='')
-        departments = self.get_departments()
-        print("\rDownloading departments... Done!")
-
-        # Set up courses progress bar
-        progress_params = {
-            'end': len(departments),
-            'width': 30,
-            'fill': '#',
-            'format': '%(current)s/%(end)s [%(fill)s%(blank)s] %(progress)s%%'
-        }
-        progress = TextbookTool.barnesandnoble.utilities.progressbar.ProgressBar(**progress_params)
-        print("Downloading courses for each department... " + str(progress), end='')
-
-        num_courses = 0
-        for department in departments:
-            department.courses = self.get_courses(department.id)
-            num_courses += len(department.courses)
-            progress + 1
-            print("\rDownloading courses for each department... " + str(progress), end='')
-
-        print("\rDownloading courses for each department... Done!")
-
-        # Set up sections progress bar
-        progress_params = {
-            'end': num_courses,
-            'width': 30,
-            'fill': '#',
-            'format': '%(current)s/%(end)s [%(fill)s%(blank)s] %(progress)s%%'
-        }
-        progress = TextbookTool.barnesandnoble.utilities.progressbar.ProgressBar(**progress_params)
-        print("Downloading sections for each course... " + str(progress), end='')
-
-        num_sections = 0
-        for department in departments:
-            for course in department.courses:
-                course.sections = self.get_sections(course.id, department.id)
-                num_sections += len(course.sections)
-                progress + 1
-                print("\rDownloading sections for each course... " + str(progress), end='')
-
-        print("\rDownloading sections for each course... Done!")
-
-        # Set up textbooks progress bar
-        progress_params = {
-            'end': num_sections,
-            'width': 30,
-            'fill': '#',
-            'format': '%(current)s/%(end)s [%(fill)s%(blank)s] %(progress)s%%'
-        }
-        progress = TextbookTool.barnesandnoble.utilities.progressbar.ProgressBar(**progress_params)
-        print("Downloading textbooks for each section... " + str(progress), end='')
-
-        for department in departments:
-            for course in department.courses:
-                for section in course.sections:
-                    section.textbooks = self.get_textbooks(section.id)
-                    progress + 1
-                    print("\rDownloading textbooks for each section... " + str(progress), end='')
-
-        print("\rDownloading textbooks for each section... Done!")
-
-        return departments
 
     @staticmethod
     def _clean_xpath_list(xpath_list):

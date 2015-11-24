@@ -2,3 +2,5 @@
 env
 __pycache__
 *.pyc
+settings.ini
+textbooktool.db

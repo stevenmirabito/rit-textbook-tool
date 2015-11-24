@@ -1,0 +1,15 @@
+; Sample SQLite database configuration
+; [Database]
+; type = sqlite
+; driver = pysqlite
+; path = textbooktool.db
+
+; Sample MySQL/PostgreSQL/etc. database configuration
+; [Database]
+; type = postgresql
+; driver = psycopg2
+; username = textbooktool
+; password = mypassword123
+; host = localhost
+; port = 5432
+; name = textbooktool
